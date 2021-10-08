@@ -65,9 +65,9 @@ And if it's taking a while to start, then you can skip ahead to step 8 (and come
 
 Often a scientist will want to run several jobs that do basically the same calculations, but using slightly different inputs.  Those could be as simple as different random seeds (so that you don't accidentally do exactly the same calculation twice in two different jobs).  Or each job could analyze data stores in different input files.  While you could submit each of these as an individual job, this can be tedious and error prone, so there's a convenient way to submit a "job array".  (If you're just submitting a dozen jobs, it's not hard to write your own scripts which are equally good.  But if you're submitting hundreds of jobs, then it's actually important to use job arrays, so as to not overload the scheduler.)  Submitting a job array is easy, you just add '#t N-M' to the PBS script, where N and M are lower and upper bounds of the job array ids.  If you're submitting a large number of jobs, then you can also specify a maximum number of jobs (P) that will be allowed to run at once using '#t N-M%P'.
 
-8.  In order for each job in the job array to do what we want (rather than the same thing each time), we'll need to add some code at the beginning of the program, so each job can figure out precisely what it should do.  In this example, we'll write the characteristics for each job to a file and then read that file in at the beginning of each job.  To create such a file, inspect and run the notebook [ex1_PrepareInputForJobArrays.ipynb](ex1_PrepareInputForJobArrays.ipynb).  You can either run it manually with the Jupyter notebook server, or you can run it from the command line with
+8.  In order for each job in the job array to do what we want (rather than the same thing each time), we'll need to add some code at the beginning of the program, so each job can figure out precisely what it should do.  In this example, we'll write the characteristics for each job to a file and then read that file in at the beginning of each job.  To create such a file, inspect and run the notebook [ex1_PrepareInputForJobArrays.jl](ex1_PrepareInputForJobArrays.jl).  You can either run it manually with the Jupyter notebook server, or you can run it from the command line with
 ```sh
-julia -e 'import Pkg; Pkg.activate("."); using NBInclude; @nbinclude("ex1_PrepareInputForJobArrays.ipynb")'
+julia --project ex1_PrepareInputForJobArrays.jl
 ```
 Verify that the file 'ex1_job_array_in.csv' was created and contains values you expect.
 
@@ -87,7 +87,7 @@ To check the status of each individual element of the job array, you can use `qs
 
 #### Step-by-step Instructions:
 
-In this exercise, we'll perform the same calculations as in [exercise 2 of lab 6](https://github.com/PsuAstro528/lab5-start/blob/master/ex2.ipynb).  However, instead of using a multi-core workstation, we will [run the calculations on the ICS ACI-B cluster](https://ics.psu.edu/computing-services/ics-aci-user-guide/#07-00-running-jobs-on-aci-b) using a distributed memory model.
+In this exercise, we'll perform the same calculations as in [exercise 2 of lab 6](https://github.com/PsuAstro528/lab5-start/blob/master/ex2.ipynb).  However, instead of using a multi-core workstation, we will [run the calculations on the ICDS Roar cluster's  ACI-b nodes](https://ics.psu.edu/computing-services/ics-aci-user-guide/#07-00-running-jobs-on-aci-b) using a distributed memory model.
 
 You're welcome to inspect or even run the [ex2.ipynb notebook](ex2.ipynb) one cell at a time to see how it works.  However, the main point of this lab is to see how to run such a calculation in parallel over multiple processor cores that are not necessarily on the same processor.  (Then, you'll compare the performance depending on whether the processors assigned are on the same node or different nodes.)
 
@@ -113,6 +113,10 @@ INSERT RESPONSE
 INSERT RESPONSE
 
 - What explains differences in the relative timing of the three calculations discussed above?
+
+INSERT RESPONSE
+
+- At the end of the notebook, it gradually removed worker processes and benchmarked the function to compute the mean squared error.  Did the scaling of run time versus number of workers change depending on whether the processes were assigned to the same node or different nodes?
 
 INSERT RESPONSE
 
@@ -142,22 +146,3 @@ INSERT RESPONSE
 7.  Repeat step 6, but now compare the performance when using multiple processor cores on a single node versus the same number of processor cores spread across multiple nodes.  (For this comparison, you probably should use no more than 20 cores.)
 
 8.  Save the scripts you use for this exercise.  You might even want to clean them up and document them.  Near the end of the semester, you'll repeat this process for both of the parallel versions of your code.  (Hopefully, the results may improve as you optimize your parallel code between now and then.)  You'll use figures such as these in your presentation and final report.
-
-
-
-## Potential Complications
-### SSH keys
-If you got an error message related to your SSH keys not being authorized, then try running the following commands on the ACI system.  
-```sh
-# Authorize for this location (home is shared on the compute nodes)
-cp ~/.ssh/authorized_keys ~/.ssh/authorized_keys.replaced
-cp ~/.ssh/id_rsa.pub ~/.ssh/authorized_keys
-
-# Setting up the host key checking...
-echo "StrictHostKeyChecking no" > ~/.ssh/config
-
-# Correct the permissions
-chmod 444 ~/.ssh/config
-chmod 700 ~/.ssh
-```
-Hopefully, that will fix the problem.  If not, let me know and I'll update [this page](https://psuastro528.github.io/tips/julia_parallel_on_aci/) as I figure out more tweaks that may be necessary to make it work for everyone.
