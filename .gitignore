@@ -7,3 +7,8 @@ data
 
 .ipynb_checkpoints
 *backkup*.jl
+
+# Inputs and outputs of job array example
+ex1_job_array_in.csv
+ex1_out_*.csv
+
