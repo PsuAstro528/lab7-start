@@ -1,7 +1,6 @@
 using Distributed
-@everywhere import Pkg
-@everywhere Pkg.offline(true)  # Tell Julia package manager not to download an updated registry for
-@everywhere Pkg.activate(".")
+@everywhere (import Pkg; Pkg.offline(true); Pkg.activate(".") )
+
 using NBInclude
 println("# About to run Jupyter notebook")
 flush(stdout)

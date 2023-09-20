@@ -14,7 +14,7 @@
 #SBATCH --ntasks=1 
 
 ## Promise that each processor will use no more than 1GB of RAM
-#SBATCH --mem=1GB 
+#SBATCH --mem-per-cpu=1GB
 
 ## Save STDOUT and STDERR into one file (%j will expand to become the SLURM job id)
 #SBATCH --output=ex1_serial_%j.log
@@ -41,7 +41,7 @@ cd $SLURM_SUBMIT_DIR            # Change into directory where job was submitted 
 
 date
 echo "About to start Julia"
-julia --project ex1_serial.jl
+julia --project=. ex1_serial.jl
 echo "Julia exited"
 date
 

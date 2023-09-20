@@ -12,3 +12,9 @@ data
 ex1_job_array_in.csv
 ex1_out_*.csv
 
+# slurm outputs
+ex?_*.log
+
+# Other unnecessary files
+julia-*.out
+.nfs*

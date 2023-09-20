@@ -9,23 +9,21 @@
 ## Time requested: 0 hours, 5 minutes, 0 seconds
 #SBATCH --time=0:05:00 
 
-## Ask for one core on one node
-#SBATCH --nodes=1 
-#SBATCH --ntasks=1 
+## Ask for one core on each of four nodes
+#SBATCH --nodes=4 
+#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks=4 
 
 ## Promise that each processor will use no more than 1GB of RAM
 #SBATCH --mem-per-cpu=1GB
 
-## Save STDOUT and STDERR into one file (%A_%a will expand to become the SLURM job id of the first job in the array and then the task id within the array)
-#SBATCH --output=ex1_jobarray_%A_%a.log
+## Save STDOUT and STDERR into one file (%j will expand to become the SLURM job id)
+#SBATCH --output=ex1_parallel_4node_%j.log
 ## Optionally could uncomment line below to write STDERR to a separate file
-##SBATCH --error=ex1_jobarray_%A_%a.stderr  
+##SBATCH --error=ex1_parallel_4node_%j.stderr  
 
-## Specificy job name, so easy to find using squeue 
-#SBATCH --job-name=ex1_jobarray
-
-## Submit a job array with 10 tasks, but limit to 5 tasks running at once
-#SBATCH --array=1-10%5
+## Specificy job name, so easy to find using squeue –u
+#SBATCH --job-name=ex1_parallel_4node
 
 ## Uncomment next two lines (by removing one of #'s in each line) and replace with your email if you want to be notifed when jobs start and stop
 ##SBATCH --mail-user=YOUR_EMAIL_HERE@psu.edu
@@ -36,6 +34,9 @@ echo "Starting job $SLURM_JOB_NAME"
 echo "Job id: $SLURM_JOB_ID"
 date
 
+echo "This job was assigned the following nodes"
+echo $SLURM_NODELIST
+
 echo "Activing environment with that provides Julia 1.9.2"
 source /storage/group/RISE/classroom/astro_528/scripts/env_setup
 
@@ -43,8 +44,7 @@ echo "About to change into $SLURM_SUBMIT_DIR"
 cd $SLURM_SUBMIT_DIR            # Change into directory where job was submitted from
 
 date
-echo "About to start Julia"
-julia --project ex1_job_array.jl $SLURM_ARRAY_TASK_ID 
+echo "About to start Julia, using Slurm Cluster Manager to connect to all 4 nodes specified in SLURM environment variables"
+julia --project=. -e 'using Distributed, ClusterManagers; addprocs(SlurmManager(4), exeflags=["--project=.",], );   include("ex1_parallel.jl") '  
 echo "Julia exited"
 date
-

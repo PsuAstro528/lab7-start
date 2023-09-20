@@ -52,9 +52,8 @@ If any of your attempts don't work, then fix the issue, try again.  Once you get
 
 7. Now, test the parallel code (first using a single core, then using a few).  After you verify that it works, then look over the file [ex1_parallel.slurm](ex1_parallel.slurm) and note how it differs from [ex1_serial.slurm](ex1_serial.slurm).  Then submit a batch job using
  ```sh
- sbatch ex1_parallel.slurm
+ sbatch ex1_parallel_1node.slurm
  ```
-TODO: UPDATE
 Check on the job status, and once it's finished inspect the output, and make sure it did what you expected.  
 
 Once the parallel job runs successfully, use git to add, commit and push it to your GitHub repository.
@@ -94,11 +93,7 @@ You're welcome to inspect or even run the [ex2.ipynb notebook](ex2.ipynb) one ce
 
 2.  Once the job completes, inspect the output files to make sure it performed as expected.  Did the job actually run on multiple nodes?  Or were all the assigned cores on a single node?
 
-3. TODO UPDATE
-Create a new Slurm script named 'ex2_1node.slurm' based on [ex2.slurm](ex2.slurm).  Change the line beginning '#PBS -l nodes' so that instead of running on four processor cores that might be on different nodes, the job will run on four processor cores all on a single node.  Submit this job, and make a note of the time you submit the job.
-
-#SBATCH --cpus-per-task=4
-#SBATCH --nodes=1
+3.  Create a new Slurm script named 'ex2_1node.slurm' based on combining elements of [ex1_parallel_1node.slurm](ex1_parallel_1node.slurm) and [ex2.slurm](ex2.slurm).  Change the lines with SBATCH options '--nodes', '--ntasks-per-node' and '--ntasks' so that instead of running on four processor cores that might be on different nodes, the job will run on four processor cores all on a single node.  Submit this job, and make a note of the time you submit the job.
 
 4.  Once the job completes, inspect the output files to make sure it performed as expected.
 
