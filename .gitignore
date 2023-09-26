@@ -10,7 +10,8 @@ data
 
 # Inputs and outputs of job array example
 ex1_job_array_in.csv
-ex1_out_*.csv
+ex1_out*.csv
+ex2_out*.csv
 
 # slurm outputs
 ex?_*.log
