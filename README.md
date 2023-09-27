@@ -1,8 +1,8 @@
 # Astro 528 Lab 7
 
-For this lab you will be submitting jobs to the Roar Collab computer cluster that is part of Penn State's [Advanced CyberInfrastructure (ACI)](https://ics.psu.edu/computing-services/system-specifications/).  The class has already been using ACI in previous labs.  We've used developed code and run it interactively using the JupyterLab server avaliable via the [Open OnDemand portal](https://portal.aci.ics.psu.edu).  These are good for code development, data visualization and small scale tests of your code, including a few processors.  However, the real power of having access to a computer cluster is being able to access dozens or hundreds of processor cores.
+For this lab you will be submitting jobs to the Roar Collab computer cluster that is part of Penn State's [Advanced CyberInfrastructure (ACI)](https://ics.psu.edu/computing-services/system-specifications/).  The class has already been using Roar Collab in previous labs.  We've used developed code and run it interactively using the BYOE JupyterLab environment and Pluto servers provided for the class.  These are very helpful for code development, data visualization and small scale tests of your code, including a few processors.  However, the real power of having access to a computer cluster is being able to access dozens or hundreds of processor cores.
 
-A typical science application is to run run dozens, hundreds or even thousands of similar calculations.  For that, scientists need to be able to automate their calculations via scripts.  Those scripts will also tell the computer cluster (technically the *resource manager* and the *scheduler*) the information necessary to assign you jobs to a computer that has the requested configuration and to schedule that in a fair way given all the other jobs that haven submitted.  A subset of ACI known as [ACI-B](https://ics.psu.edu/computing-services/ics-aci-user-guide/#07-00-running-jobs-on-aci-b) (where B is for "Batch") is designed to meet these needs.  All students registered for this class should already have access to an *allocation*, named "ebf11_d_g_gc_default".
+A typical science application is to run run dozens, hundreds or even thousands of similar calculations.  For that, scientists need to be able to automate their calculations via scripts.  Those scripts will also tell the computer cluster (technically the *resource manager* and the *scheduler*) the information necessary to assign you jobs to a computer that has the requested configuration and to schedule that in a fair way given all the other jobs that haven submitted.  
 
 ## Exercise 1:  Using the ICDS-ACI Roar Clusters
 #### Goals:
@@ -19,15 +19,15 @@ Follow directions below to practice submitting jobs and inspecting their results
 2.  For this lab, you'll mostly be using the command-line interface to submit jobs to Roar Collab.  You can get to a command line on Roar Collab by using:
    -  Clicking the terminal tile inside the JupyterLab Server Launcher that you've been using, 
    - `ssh submit.aci.ics.psu.edu` (I've found sometimes this is easier to copy/paste text across windows.), or
-   -  the ACI Interactive Desktop [screenshot](images/InteractiveDesktop.png).
+   -  the Interactive Desktop [screenshot](images/InteractiveDesktop.png).
 
-Note that the number of cores you are allocated when using the JupyterLab Server or ACI Interactive Desktop affects the number of cores for your interactive session, but does not prevent you from submitting batch jobs that use more (or fewer) cores.
+Note that the number of cores you are allocated when using the JupyterLab Server or Interactive Desktop affects the number of cores for your interactive session, but does not prevent you from submitting batch jobs that use more (or fewer) cores.
 
 3.  Clone your project repo, change into that directory and test that the code for example 1 runs successfully.  E.g.,
 ```sh
 git clone REPO_URL
 cd REPO_DIR
-julia ex1_serial.jl
+julia --project ex1_serial.jl
 ```
 ### Submitting & Running a Serial Job
 
@@ -50,32 +50,46 @@ If any of your attempts don't work, then fix the issue, try again.  Once you get
 
 ### Submitting & Running a Parallel Job
 
-7. Now, test the parallel code (first using a single core, then using a few).  After you verify that it works, then look over the file [ex1_parallel.slurm](ex1_parallel.slurm) and note how it differs from [ex1_serial.slurm](ex1_serial.slurm).  Then submit a batch job using
+Before we run code in parallel spanning multiple processes, we need to setup your ssh keys to allow processes to communicate with each other without you constantly entering passwords.  To do that run the following commands on Roar Collab.
+```sh
+touch ~/.ssh/authorized_keys; 
+cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+```
+You shouldn't need to run those again.  
+
+7. Now, test the parallel code (first using using just a few cores all on one compute node).  Look over the file [ex1_parallel_1node.slurm](ex1_parallel_1node.slurm) and note how it differs from [ex1_serial.slurm](ex1_serial.slurm).  Then submit a batch job using
  ```sh
  sbatch ex1_parallel_1node.slurm
  ```
 Check on the job status, and once it's finished inspect the output, and make sure it did what you expected.  
 
 Once the parallel job runs successfully, use git to add, commit and push it to your GitHub repository.
-And if it's taking a while to start, then you can skip ahead to step 8 (and come back to finish this step later after your parallel job has completed).
+And if it's taking a while to start, then you can skip ahead to step 8 or 9 (and come back to finish this step later after your parallel job has completed).
+
+8. Next, test the parallel code (using multiple cores each on a different compute node).  Look over the file [ex1_parallel_multinode.slurm](ex1_parallel_multinode.slurm) and note how it differs from [ex1_serial.slurm](ex1_serial.slurm) and [ex1_parallel_1node.slurm](ex1_parallel_1node.slurm) .  Then inspect Inspect [setup_slurm_manager.jl](setup_slurm_manager.jl) to see how we're adding the worker processors assigned by slurm. Then submit a batch job using
+ ```sh
+ sbatch ex1_parallel_multinode.slurm
+ ```
+
+If you're interested, you can try changing the number of cores or nodes requested.  
 
 ### Submitting & Running a Job Array
 
-Often a scientist will want to run several jobs that do basically the same calculations, but using slightly different inputs.  Those could be as simple as different random seeds (so that you don't accidentally do exactly the same calculation twice in two different jobs).  Or each job could analyze data stores in different input files.  While you could submit each of these as an individual job, this can be tedious and error prone, so there's a convenient way to submit a "job array".  (If you're just submitting a dozen jobs, it's not hard to write your own scripts which are equally good.  But if you're submitting hundreds of jobs, then it's actually important to use job arrays, so as to not overload the scheduler.)  Submitting a job array is easy, you just add a line '#SBATCH --array=N-M' to the slurm script, where N and M are lower and upper bounds of the job array ids.  If you're submitting a large number of jobs, then you can also specify a maximum number of jobs (P) that will be allowed to run at once using '#SBATCH --array=N-M%P'.
+Often a scientist will want to run several jobs that do basically the same calculations, but using slightly different inputs.  Those could be as simple as different random seeds (so that you don't accidentally do exactly the same calculation twice in two different jobs).  Or each job could analyze data stored in different input files (e.g., a bunch of spectra in separate FITS files).  While you could submit each of these as an individual job, this can be tedious and error prone, so there's a convenient way to submit a "job array".  (If you're just submitting a dozen jobs, it's not hard to write your own scripts which are equally good.  But if you're submitting hundreds of jobs, then it's actually important to use job arrays, so as to not overload the scheduler.)  Submitting a job array is easy, you just add a line '#SBATCH --array=N-M' to the slurm script, where N and M are lower and upper bounds of the job array ids.  If you're submitting a large number of jobs, then you can also specify a maximum number of jobs (P) that will be allowed to run at once using '#SBATCH --array=N-M%P'.
 
-8.  In order for each job in the job array to do what we want (rather than the same thing each time), we'll need to add some code at the beginning of the program, so each job can figure out precisely what it should do.  In this example, we'll write the characteristics for each job to a file and then read that file in at the beginning of each job.  To create such a file, inspect and run the notebook [ex1_PrepareInputForJobArrays.jl](ex1_PrepareInputForJobArrays.jl).  You can either run it from the command line with
+9.  In order for each job in the job array to do what we want (rather than the same thing each time), we'll need to add some code at the beginning of the program, so each job can figure out precisely what it should do.  In this example, we'll write the characteristics for each job to a file and then read that file in at the beginning of each job.  To create such a file, inspect and run the notebook [ex1_PrepareInputForJobArrays.jl](ex1_PrepareInputForJobArrays.jl).  You can either run it from the command line with
 ```sh
 julia --project ex1_PrepareInputForJobArrays.jl
 ```
 Verify that the file 'ex1_job_array_in.csv' was created and contains values you expect.
 
-9.  Inspect the script the slurm script [ex1_job_array.slurm](ex1_job_array.slurm) and compare it to [ex1_serial.slurm](ex1_serial.slurm).  Submit the job using
+10.  Inspect the script the slurm script [ex1_job_array.slurm](ex1_job_array.slurm) and compare it to [ex1_serial.slurm](ex1_serial.slurm).  Submit the job using
 ```sh
 sbatch ex1_job_array.slurm
 ```
 To check the status of each individual element of the job array, you can use `squeue` but adding the '-r' option array like `squeue -r`.
 
-10.  Check on the job status, and once they've finished inspect the output, and make sure it did what you expected.  Then use git to add, commit and push the output files to your GitHub repository.
+11.  Check on the job status, and once they've finished inspect the output, and make sure it did what you expected.  Then use git to add, commit and push the output files to your GitHub repository.
 
 
 ## Exercise 2:  Parallel Programming for Distributed-Memory Model
@@ -85,11 +99,14 @@ To check the status of each individual element of the job array, you can use `sq
 
 #### Step-by-step Instructions:
 
-In this exercise, we'll perform the same calculations as in [exercise 2 of lab 6](https://github.com/PsuAstro528/lab5-start/blob/master/ex2.ipynb).  However, instead of using a multi-core workstation, we will [run the calculations on the ICDS Roar cluster's  ACI-b nodes](https://ics.psu.edu/computing-services/ics-aci-user-guide/#07-00-running-jobs-on-aci-b) using a distributed memory model.
+In this exercise, we'll perform the same calculations as in [exercise 2 of lab 6](https://github.com/PsuAstro528/lab6-start/blob/master/ex2.ipynb).  However, instead of using a shared-memory model (possible on a multi-core workstation) as in Lab 6, we will run the calculations on multiple compute nodes spread across the [Roar Collab cluster](https://www.icds.psu.edu/roar-collab-user-guide/) using a distributed memory model.
 
 You're welcome to inspect or even run the [ex2.ipynb notebook](ex2.ipynb) one cell at a time to see how it works.  However, the main point of this lab is to see how to run such a calculation in parallel over multiple processor cores that are not necessarily on the same processor.  (Then, you'll compare the performance depending on whether the processors assigned are on the same node or different nodes.)
 
-1. Inspect [ex2.slrum](ex2.slurm) and [ex2_run_nb.jl](ex2_run_nb.jl).  Then submit the slurm script [ex2.slurm](ex2.slurm).  Make a note of what time you submit the job (e.g., using the 'date' command), so that you can compare how long it takes for your job to start, as well as how long it takes to run.  (If you request emails when your job starts and completes, those can be helpful, but those won't remind you when you submitted the job.)
+1. Inspect [ex2_parallel_1node.slurm](ex2_parallel_1node.slurm) and [ex2_run_nb.jl](ex2_run_nb.jl).  Then submit the slurm script [ex2.slurm](ex2.slurm).  Make a note of what time you submit the job (e.g., using the 'date' command), so that you can compare how long it takes for your job to start, as well as how long it takes to run.  (If you request emails when your job starts and completes, those can be helpful, but those won't remind you when you submitted the job.)
+
+
+ex2_parallel_1node.slurm  ex2_parallel_combo.slurm  ex2_parallel_multinode.slurm
 
 2.  Once the job completes, inspect the output files to make sure it performed as expected.  Did the job actually run on multiple nodes?  Or were all the assigned cores on a single node?
 

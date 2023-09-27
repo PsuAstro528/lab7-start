@@ -2,7 +2,7 @@
 
 julia_version = "1.9.2"
 manifest_format = "2.0"
-project_hash = "6a016b32e540cebed2a65b230edc45b40341c33b"
+project_hash = "69d2f44b35bfbdd5208f8580146cae0135c50ee6"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -31,12 +31,6 @@ deps = ["LinearAlgebra"]
 git-tree-sha1 = "f641eb0a4f00c343bbc32346e1217b86f3ce9dad"
 uuid = "49dc2e85-a5d0-5ad3-a950-438e2897f1b9"
 version = "0.5.1"
-
-[[deps.ClusterManagers]]
-deps = ["Distributed", "Logging", "Pkg", "Sockets"]
-git-tree-sha1 = "245a2bb9a98e18611dde824f04bef6f5e04d7a6b"
-uuid = "34f1f09b-3a8b-5176-ab39-66d58a4d544e"
-version = "0.4.5"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
