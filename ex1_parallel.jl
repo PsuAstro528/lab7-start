@@ -1,5 +1,5 @@
 using Distributed 
-@everywhere (import Pkg; Pkg.activate(".")) 
+#@everywhere (import Pkg; Pkg.activate(".")) 
 @everywhere using ParallelUtilities
 
 @everywhere function calc_pi(n::Integer)

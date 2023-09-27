@@ -9,7 +9,7 @@
 ## Time requested: 0 hours, 5 minutes, 0 seconds
 #SBATCH --time=0:05:00 
 
-## Ask for one core on one node
+## Ask for one core on one node for each element of the task array
 #SBATCH --nodes=1 
 #SBATCH --ntasks=1 
 
@@ -44,7 +44,7 @@ cd $SLURM_SUBMIT_DIR            # Change into directory where job was submitted 
 
 date
 echo "About to start Julia"
-julia --project ex1_job_array.jl $SLURM_ARRAY_TASK_ID 
+julia --project=. ex1_job_array.jl $SLURM_ARRAY_TASK_ID 
 echo "Julia exited"
 date
 

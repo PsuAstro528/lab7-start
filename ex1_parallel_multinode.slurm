@@ -44,7 +44,7 @@ echo "About to change into $SLURM_SUBMIT_DIR"
 cd $SLURM_SUBMIT_DIR            # Change into directory where job was submitted from
 
 date
-echo "About to start Julia, using Slurm Cluster Manager to connect to all 4 nodes specified in SLURM environment variables"
-julia --project=. -e 'using Distributed, ClusterManagers; addprocs(SlurmManager(4), exeflags=["--project=.",], );   include("ex1_parallel.jl") '  
+echo "About to start Julia, using Slurm Cluster Manager to connect to one worker process on each of $SLURM_NNODES nodes."
+julia --project=. -e 'include("setup_slurm_manager.jl"); include("ex1_parallel.jl") '  
 echo "Julia exited"
 date
