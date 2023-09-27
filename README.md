@@ -45,7 +45,7 @@ The time required for your job to start depends on how many resources you've req
 Once your job starts, it should finish quickly.  At that point, the job status should change to 'CG' (completing) and a little while later it will be removed from the list of jobs listed by `squeue`.
 
 6. Once you're job is done, there should be a new file in the directory that you submitted the job from with a name like `ex1_serial_5946548.log`, where the number is the numerical portion of the Slurm JOB ID.
-Inspect this file to make sure the job behaved as expected.  If so, use git to add, commit and push it to your GitHub repository.
+Inspect this file to make sure the job behaved as expected.  If so, use git to add, commit and push it to your GitHub repository.  
 If any of your attempts don't work, then fix the issue, try again.  Once you get it to work, delete the old output from the broken jobs and only add/commit/push the output once you've get it working.
 
 ### Submitting & Running a Parallel Job
