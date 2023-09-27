@@ -47,7 +47,6 @@ cd $SLURM_SUBMIT_DIR            # Change into directory where job was submitted 
 
 date
 echo "About to start Julia, using $SLURM_TASKS_PER_NODE CPU cores on one node"
-#julia --project=. -p $SLURM_TASKS_PER_NODE -e 'include("ex2_run_nb.jl")'  
-julia --project=. -p $SLURM_TASKS_PER_NODE ex2_run_nb.jl
+julia --project=. -p $SLURM_TASKS_PER_NODE -e 'include("ex2_run_nb.jl")'  
 echo "Julia exited"
 date

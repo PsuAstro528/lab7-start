@@ -54,6 +54,7 @@ Before we run code in parallel spanning multiple processes, we need to setup you
 ```sh
 touch ~/.ssh/authorized_keys; 
 cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys 
+chmod 600 ~/.ssh/authorized_keys 
 ```
 You shouldn't need to run those again.  
 
@@ -66,12 +67,12 @@ Check on the job status, and once it's finished inspect the output, and make sur
 Once the parallel job runs successfully, use git to add, commit and push it to your GitHub repository.
 And if it's taking a while to start, then you can skip ahead to step 8 or 9 (and come back to finish this step later after your parallel job has completed).
 
-8. Next, test the parallel code (using multiple cores each on a different compute node).  Look over the file [ex1_parallel_multinode.slurm](ex1_parallel_multinode.slurm) and note how it differs from [ex1_serial.slurm](ex1_serial.slurm) and [ex1_parallel_1node.slurm](ex1_parallel_1node.slurm) .  Then inspect Inspect [setup_slurm_manager.jl](setup_slurm_manager.jl) to see how we're adding the worker processors assigned by slurm. Then submit a batch job using
+8. Next, test the parallel code (using multiple cores, each on a different compute node).  Look over the file [ex1_parallel_multinode.slurm](ex1_parallel_multinode.slurm) and note how it differs from [ex1_serial.slurm](ex1_serial.slurm) and [ex1_parallel_1node.slurm](ex1_parallel_1node.slurm) .  Then inspect Inspect [setup_slurm_manager.jl](setup_slurm_manager.jl) to see how we're adding the worker processors assigned by slurm. Then submit a batch job using
  ```sh
  sbatch ex1_parallel_multinode.slurm
  ```
 
-If you're interested, you can try changing the number of cores or nodes requested.  
+If you're interested, you can try changing the number of cores or nodes requested or other Slurm job parameters.  
 
 ### Submitting & Running a Job Array
 
@@ -103,41 +104,44 @@ In this exercise, we'll perform the same calculations as in [exercise 2 of lab 6
 
 You're welcome to inspect or even run the [ex2.ipynb notebook](ex2.ipynb) one cell at a time to see how it works.  However, the main point of this lab is to see how to run such a calculation in parallel over multiple processor cores that are not necessarily on the same processor.  (Then, you'll compare the performance depending on whether the processors assigned are on the same node or different nodes.)
 
-1. Inspect [ex2_parallel_1node.slurm](ex2_parallel_1node.slurm) and [ex2_run_nb.jl](ex2_run_nb.jl).  Then submit the slurm script [ex2.slurm](ex2.slurm).  Make a note of what time you submit the job (e.g., using the 'date' command), so that you can compare how long it takes for your job to start, as well as how long it takes to run.  (If you request emails when your job starts and completes, those can be helpful, but those won't remind you when you submitted the job.)
-
+1. Inspect [ex2_parallel_1node.slurm](ex2_parallel_1node.slurm) and [ex2_run_nb.jl](ex2_run_nb.jl).  Update the slurm script to have your email address.  Then submit the slurm script [ex2_parallel_1node.slurm](ex2_parallel_1node.slurm) using `sbatch`.  The email notifications are particularly useful for this exercise, as they'll tell you how long your job waited in the queue as well as how long they took to run.  Once the job completes, inspect the output files to make sure it performed as expected.  
 
 ex2_parallel_1node.slurm  ex2_parallel_combo.slurm  ex2_parallel_multinode.slurm
 
-2.  Once the job completes, inspect the output files to make sure it performed as expected.  Did the job actually run on multiple nodes?  Or were all the assigned cores on a single node?
+2.  Inspect [ex2_parallel_multinode.slurm](ex2_parallel_multinode.slurm) and compare it to [ex2_parallel_1node.slurm](ex2_parallel_1node.slurm).  Submit this job via `sbatch`. Once the job completes, inspect the output log file to make sure it performed as expected.
 
-3.  Create a new Slurm script named 'ex2_1node.slurm' based on combining elements of [ex1_parallel_1node.slurm](ex1_parallel_1node.slurm) and [ex2.slurm](ex2.slurm).  Change the lines with SBATCH options '--nodes', '--ntasks-per-node' and '--ntasks' so that instead of running on four processor cores that might be on different nodes, the job will run on four processor cores all on a single node.  Submit this job, and make a note of the time you submit the job.
+3.  Modify [ex2_parallel_1node.slurm](ex2_parallel_1node.slurm) and [ex2_parallel_multinode.slurm](ex2_parallel_multinode.slurm) so that each of them uses 8 CPU cores.  Change the lines with SBATCH options '--nodes', '--ntasks-per-node' and '--ntasks' as needed, so that the jobs run on one node for the first script and spread across 8 different nodes for the second script.  Submit both as job via `sbatch`.  Once the new jobs complete, inspect the output log files to make sure that they ran succesfully.  
 
-4.  Once the job completes, inspect the output files to make sure it performed as expected.
+4.  Compare and contrast the performance time required for various steps and add your responces to this README below.  
 
-5.  Compare and contrast the performance results.
-- How did the time required to perform the 'map(...)' calculations compare between when the assigned processors were on the same node versus on different nodes?  (Remember to ignore the first call in each set of calls due to compilation.)
-
-INSERT RESPONSE
-
-- How did the time required to perform the 'collect(map(...))' calculations compare between when the assigned processors were on the same node versus on different nodes?
+4a. How did the time required to perform the 'map(...)' calculations compare between when the assigned processors were on the same node versus on different nodes?  (Remember to ignore the first call in each set of calls due to compilation.)
 
 INSERT RESPONSE
 
-- How did the time required to perform the 'mapreduce(...)' calculations compare between when the assigned processors were on the same node versus on different nodes?
+4b. How did the time required to perform the 'collect(map(...))' calculations compare between when the assigned processors were on the same node versus on different nodes?
 
 INSERT RESPONSE
 
-- What explains differences in the relative timing of the three calculations discussed above?
+4c. How did the time required to perform the 'mapreduce(...)' calculations compare between when the assigned processors were on the same node versus on different nodes?
 
 INSERT RESPONSE
 
-- At the end of the notebook, it gradually removed worker processes and benchmarked the function to compute the mean squared error.  Did the scaling of run time versus number of workers change depending on whether the processes were assigned to the same node or different nodes?
+4d. What explains differences in the relative timing of the three calculations discussed above?
 
 INSERT RESPONSE
 
-- How did the time that your jobs waited in the queue before starting compare depending on whether you asked for all the processors to be on compute node?
+4e. At the end of the notebook, it gradually removed worker processes and benchmarked the function to compute the mean squared error.  Did the scaling of run time versus number of workers avaliable change depending on whether the processes were assigned to the same node or different nodes?
 
 INSERT RESPONSE
+
+4f. How did the time that your jobs waited in the queue before starting compare depending on whether you asked for all the processors to be on compute node?
+
+INSERT RESPONSE
+
+
+5.  If you'll want to use more than ~16 CPU cores for your project, then inspect the script [ex2_parallel_combo.slurm](ex2_parallel_combo.slurm) and compare it to [ex2_parallel_multinode.slurm](ex2_parallel_multinode.slurm).  Submit this job via `sbatch`. Once the job completes, inspect the output log file to make sure it performed as expected.
+
+5a.  What is this slurm script doing differently?  Why would that be important for using many CPU cores?
 
 
 ## Exercise 3:  Run your project code using the Cluster
@@ -148,16 +152,16 @@ INSERT RESPONSE
 
 1.  Create a slurm script that successfully runs an example case using your project's serial code.  (If you don't have a working example yet, then you can have the script run your project's tests.)
 
-2.  Create a new slurm script that runs and benchmarks your project's serial code for different problem sizes.  Depending on the details of your project, you might have one '.jl' or '.ipynb' file that performs all the benchmarks in sequence, or you might submit a job array where each element of the job array runs the benchmarks for one problem size.
+2.  Create a new slurm script that runs and benchmarks your project's serial code for different problem sizes.  Depending on the details of your project, you might have one '.jl' or '.ipynb' file that performs all the benchmarks in sequence (like at the end of ex2), or you might have a separate slurm script for each problem size that you benchmark.
 
-3.  (I expect that some students will only get to this and subsequent steps after the due date for Lab 7.  But I include them here for any who are ready to start benchmarking their parallel code.)  Once you have a parallel version of your project code working in an interactive environment, then make a Slurm script that runs the parallel version of your code.  Run the script, make sure that it gives the expected results and that it's actually using the processors its been assigned (as opposed to running in serial).
+3.  (I expect that some students will only get to this and subsequent steps after the due date for Lab 7.  But I include them here for any who are ready to start benchmarking their parallel code now.)  Once you have a parallel version of your project code working in an interactive environment, then make a Slurm script that runs the parallel version of your code.  Run the script, make sure that it gives the expected results and that it's actually using the processors its been assigned (as opposed to running in serial).
 
-4.  Benchmark the performance of your code as a function of the number of processors used, keeping the problem size fixed.  Make a plot showing the *strong scaling* of the performance critical section your code (i.e., run time as a function of problem size) as the number of processors varies from 1, 2, 4, 8, 12, 16.  How does the performance benefit compare to a linear scaling?  If your code is scaling well even at 16 processors (i.e., run time continues to decrease nearly linearly with number of processors), then keep increasing the number of processors until the run time levels off (or you reach 100 cores).
+4.  Benchmark the performance of your code as a function of the number of processors used, keeping the problem size fixed.  Make a plot showing the *strong scaling* of the performance critical section your code (i.e., run time as a function of problem size) as the number of processors varies from 1, 2, 4, 8, 12, 16, 20, 24.  How does the performance benefit compare to a linear scaling?  If your code is scaling well even at >16 processors (i.e., the run time continues to decrease nearly linearly with number of processors), then keep increasing the number of processors until the run time levels off (or you reach 100 cores).
 
-5.  Repeat the benchmarks from step 4, but using at least a few problem sizes (spanning at least two orders of magnitude, i.e., big enough so that you can see the benefits of parallelism).
+5.  Repeat the benchmarks from step 4, but using at least a few problem sizes (spanning at least two orders of magnitude if possible, i.e., big enough so that you can see the benefits of parallelism).
 
 6. Benchmark the performance of your code as a function of the number of processors used, but now growing the problem size in proportion to the number of processors.  Make a plot showing the *weak scaling* of the performance critical section your code (i.e., run time as a function of problem size) changing the problem size by at least a factor of 16.  How does the run time scale with the problem size (and number of processors)?
 
-7.  Repeat step 6, but now compare the performance when using multiple processor cores on a single node versus the same number of processor cores spread across multiple nodes.  (For this comparison, you probably should use no more than 32 cores.)
+7.  Repeat step 6, but now compare the performance when using multiple processor cores on a single node versus the same number of processor cores spread across multiple nodes.  
 
-8.  Save the scripts you use for this exercise.  You might even want to clean them up and document them.  Near the end of the semester, you'll repeat this process for both of the parallel versions of your code.  (Hopefully, the results may improve as you optimize your parallel code between now and then.)  You'll use figures such as these in your presentation and final report.
+8.  Save the scripts you use for this exercise.  You might even want to clean them up and document them.  Near the end of the semester, you'll repeat this process for both of the parallel versions of your code.  (Hopefully, the results may improve as you optimize your parallel code between now and then.)  Then, you'll show the resulting figures in your presentation and final report to help illustrated what you learned about how well your code parallelizes.
