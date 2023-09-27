@@ -1,5 +1,7 @@
 using NBInclude
 
+ENV["GKSwstype"]="nul"   # To prevent Plots pacakge from trying to display plot
+
 println("# About to run Jupyter notebook")
 flush(stdout)
 flush(stderr)
